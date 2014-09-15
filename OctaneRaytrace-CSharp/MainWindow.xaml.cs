@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,6 +26,8 @@ namespace OctaneRaytrace_CSharp
         static int MIN_ITERATIONS = 32;
         static long REFERENCE_SCORE = 739989;
 
+        Thread thread;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,19 +35,37 @@ namespace OctaneRaytrace_CSharp
 
         private void BenchmarkButton_Click(object sender, RoutedEventArgs e)
         {
-            this.textBlock.Text += "Raytrace...\r\n";
-            // Warmup
-            Measure(null);
-            // Benchmark
-            Data data = new Data();
-            while (data.runs < MIN_ITERATIONS) {
-                Measure(data);
-                this.textBlock.Text += "Runs: " + data.runs + ", Elapsed: " + data.elapsed + "\r\n";
+
+            if (thread != null && thread.IsAlive)
+            {
+                return;
             }
-            long usec = (data.elapsed * 1000) / data.runs;
-            long score = (REFERENCE_SCORE / usec) * 100;
-            this.textBlock.Text += "Score: " + score + "\r\n";
-            this.textBlock.Text += "Done\r\n\r\n";            
+
+            this.textBlock.Text += "Raytrace...\r\n";
+
+            thread = new Thread((ThreadStart) delegate
+            {
+                // Warmup
+                Measure(null);
+                // Benchmark
+                Data data = new Data();
+                while (data.runs < MIN_ITERATIONS)
+                {
+                    Measure(data);
+                    this.textBlock.Dispatcher.BeginInvoke((Action) delegate
+                    {
+                        this.textBlock.Text += "Runs: " + data.runs + ", Elapsed: " + data.elapsed + "\r\n";
+                    });
+                }
+                long usec = (data.elapsed * 1000) / data.runs;
+                long score = (REFERENCE_SCORE / usec) * 100;
+                this.textBlock.Dispatcher.BeginInvoke((Action)delegate
+                {
+                    this.textBlock.Text += "Score: " + score + "\r\n";
+                    this.textBlock.Text += "Done\r\n\r\n";
+                });
+            });
+            thread.Start();
         }
 
         private void RenderButton_Click(object sender, RoutedEventArgs e)

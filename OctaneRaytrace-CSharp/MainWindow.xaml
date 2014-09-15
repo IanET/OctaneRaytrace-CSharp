@@ -7,7 +7,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="textBlock" Margin="10" TextWrapping="Wrap" Grid.Row="1"/>
+        <TextBox x:Name="textBlock" Margin="10" TextWrapping="Wrap" Grid.Row="1" VerticalScrollBarVisibility="Auto"/>
         <ToolBar VerticalAlignment="Center">
             <Button Content="Benchmark" VerticalAlignment="Center" Margin="5" Click="BenchmarkButton_Click"/>
             <Button Content="Render" VerticalAlignment="Center" Margin="5" Click="RenderButton_Click"/>
