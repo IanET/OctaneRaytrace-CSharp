@@ -55,3 +55,7 @@ $RECYCLE.BIN/
 #windows build
 obj
 bin
+
+#visual studio
+*.suo
+
